@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Walking Dads",
+    "pfad": "/walking-dads/",
+    "icon": "👟",
+    "text": "Runde mit dem Kinderwagen planen. Zeit statt Kilometer, Link in die Gruppe."
+  },
+  {
+    "name": "Hammer-Deals",
+    "pfad": "/hammer-deals/",
+    "icon": "🔨",
+    "text": "Von Dad zu Dad tauschen, verkaufen, leihen, suchen. Karte bauen, Link teilen."
+  },
+  {
+    "name": "Gutenachtgeschichte",
+    "pfad": "/geschichte/",
+    "icon": "🌙",
+    "text": "Kölsche Geschichte mit eurem Namen, Veedel und Lieblingsessen. Papa liest vor."
+  }
+]

@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Schälsick Dads</title>
+<meta name="description" content="Tools und Termine der Schälsick Dads aus Köln. Kölsch. Kinder. Chaos.">
+<meta name="theme-color" content="#143446">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dads">
+<style>
+  :root {
+    --navy: #143446;
+    --navy-2: #1f4e66;
+    --ink: #0b1e2a;
+    --cream: #f5ebd7;
+    --orange: #efa33a;
+    --rust: #cd6a2a;
+    --teal: #58a0b8;
+    --red: #c82630;
+    --serif: "Cooper Black", "Chunk Five Print", "Rockwell", Georgia, "DejaVu Serif", serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; background: var(--navy); overflow-x: hidden; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-2) 100%);
+    color: var(--cream);
+    font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 22px 26px 40px 18px; }
+  .top {
+    display: flex; justify-content: space-between; gap: 12px;
+    font: 12px var(--mono); letter-spacing: .04em; color: rgba(245,235,215,.7);
+    border-bottom: 2px solid rgba(245,235,215,.35); padding-bottom: 8px;
+  }
+  header { text-align: center; padding: 22px 0 8px; }
+  header img { width: min(62vw, 250px); height: auto; display: block; margin: 0 auto; }
+  .claim {
+    margin: 14px 0 0; font: 900 18px var(--serif); letter-spacing: .02em; color: var(--orange);
+  }
+  h2 {
+    font: 700 13px var(--mono); letter-spacing: .12em; text-transform: uppercase;
+    color: rgba(245,235,215,.75); margin: 34px 0 12px;
+  }
+
+  /* Kacheln */
+  .tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .tile {
+    display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 14px; align-items: center; min-width: 0;
+    text-decoration: none; color: var(--cream);
+    background: var(--navy); border: 3px solid var(--cream); border-radius: 18px;
+    padding: 16px; box-shadow: 8px 9px 0 var(--ink);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .tile:active { transform: translate(5px, 6px); box-shadow: 3px 3px 0 var(--ink); }
+  .tile .ic {
+    width: 64px; height: 64px; border-radius: 14px; background: var(--orange);
+    display: grid; place-items: center; font-size: 34px; border: 3px solid var(--ink);
+  }
+  .tile b { display: block; font: 900 21px/1.15 var(--serif); overflow-wrap: anywhere; hyphens: auto; }
+  .tile span { display: block; margin-top: 4px; font-size: 15px; color: rgba(245,235,215,.82); }
+  .tile:focus-visible, .btn:focus-visible { outline: 4px solid var(--orange); outline-offset: 3px; }
+
+  /* Termine */
+  .next {
+    background: var(--red); border: 3px solid var(--cream); border-radius: 18px;
+    padding: 16px 18px; box-shadow: 8px 9px 0 var(--ink); transform: rotate(-.6deg);
+  }
+  .next .lbl { font: 700 12px var(--mono); letter-spacing: .12em; text-transform: uppercase; opacity: .9; }
+  .next .titel { font: 900 26px/1.15 var(--serif); margin: 6px 0 2px; }
+  .when { font-weight: 700; }
+  .ort, .note { opacity: .92; }
+  .tag { display: inline-block; background: var(--orange); color: var(--ink); font: 700 12px var(--mono); letter-spacing: .04em;
+    text-transform: uppercase; padding: 2px 9px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+  .ort a, .meta a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  .tag.zu { background: var(--teal); color: var(--ink); }
+  .zusage { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; margin-top: 12px; }
+  .zusage .btn { width: 100%; text-align: center; }
+  .nameinfo { margin: -4px 0 12px; font-size: 13px; color: rgba(245,235,215,.8); }
+  .nameinfo button { appearance: none; background: none; border: 0; padding: 0; color: var(--orange); font: inherit; text-decoration: underline; cursor: pointer; }
+  dialog#nameDlg { border: 3px solid var(--cream); border-radius: 18px; background: var(--navy); color: var(--cream);
+    padding: 18px; width: min(92vw, 420px); box-shadow: 8px 9px 0 var(--ink); }
+  dialog#nameDlg::backdrop { background: rgba(11,30,42,.75); }
+  dialog#nameDlg h3 { margin: 0 0 6px; font: 900 22px/1.15 var(--serif); }
+  dialog#nameDlg p { margin: 0 0 12px; font-size: 14px; color: rgba(245,235,215,.85); }
+  dialog#nameDlg input { width: 100%; font: 17px system-ui, sans-serif; color: var(--ink); background: var(--cream);
+    border: 3px solid var(--ink); border-radius: 12px; padding: 11px 12px; }
+  dialog#nameDlg .btns { margin-top: 14px; }
+  .vorschlag { margin-top: 22px; }
+  .vorschlag details { border: 2px solid rgba(245,235,215,.5); border-radius: 14px; background: rgba(11,30,42,.35); padding: 4px 16px; }
+  .vorschlag summary { cursor: pointer; font: 900 18px/1.3 var(--serif); padding: 12px 0; }
+  .vorschlag form { padding: 2px 0 16px; }
+  .vorschlag p { margin: 0 0 10px; font-size: 15px; color: rgba(245,235,215,.88); }
+  .vorschlag label { display: block; font: 700 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; margin: 12px 0 5px; color: rgba(245,235,215,.85); }
+  .vorschlag .opt { font: 400 12px system-ui; text-transform: none; letter-spacing: 0; opacity: .8; }
+  .vorschlag input { width: 100%; min-width: 0; font: 17px system-ui, sans-serif; color: var(--ink); background: var(--cream);
+    border: 3px solid var(--ink); border-radius: 12px; padding: 10px 12px; }
+  .vorschlag .zwei { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; align-items: end; }
+  .vorschlag .btn.voll { width: 100%; margin-top: 16px; background: var(--orange); font-size: 17px; padding: 13px; }
+  .vorschlag .danke { margin-top: 12px; font-size: 14px; color: rgba(245,235,215,.9); }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .btn {
+    appearance: none; cursor: pointer; text-decoration: none; display: inline-block;
+    font: 700 15px system-ui, sans-serif; color: var(--ink); background: var(--cream);
+    border: 3px solid var(--ink); border-radius: 12px; padding: 9px 14px;
+  }
+  .btn.alt { background: transparent; color: var(--cream); border-color: var(--cream); }
+  .list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 18px; }
+  .row {
+    border: 2px solid rgba(245,235,215,.5); border-radius: 14px; padding: 12px 14px; background: rgba(11,30,42,.35);
+  }
+  .row .titel { font: 900 19px/1.2 var(--serif); }
+  .row .meta { font-size: 15px; color: rgba(245,235,215,.85); margin-top: 2px; }
+  .row .btns { margin-top: 8px; }
+  .row .btn { font-size: 14px; padding: 6px 10px; border-width: 2px; }
+  .leer { border: 2px dashed rgba(245,235,215,.45); border-radius: 14px; padding: 16px; color: rgba(245,235,215,.85); }
+
+
+  /* App-Hinweis */
+  .install { margin-top: 34px; }
+  .install .card { border: 2px solid rgba(245,235,215,.5); border-radius: 14px; padding: 14px 16px; background: rgba(11,30,42,.35); }
+  .install h3 { margin: 0 0 4px; font: 900 19px/1.2 var(--serif); }
+  .install p { margin: 4px 0 10px; font-size: 15px; color: rgba(245,235,215,.85); }
+  .install details { border-top: 2px solid rgba(245,235,215,.25); padding: 10px 0 2px; }
+  .install details:first-of-type { border-top: 0; }
+  .install summary { cursor: pointer; font: 900 17px var(--serif); list-style-position: inside; padding: 4px 0; }
+  .install ol { margin: 6px 0 8px; padding-left: 22px; font-size: 15px; color: rgba(245,235,215,.92); }
+  .install li { margin: 4px 0; }
+  .install .btn { margin: 4px 0 8px; }
+  .install .hinweis { font-size: 13px; opacity: .75; margin: 0 0 6px; }
+
+  footer {
+    margin-top: 40px; text-align: center; font: 12px var(--mono); color: rgba(245,235,215,.6);
+  }
+  footer .waves { height: 10px; margin: 0 auto 14px; max-width: 220px; border-radius: 6px;
+    background: repeating-linear-gradient(135deg, var(--orange) 0 10px, var(--ink) 10px 20px); }
+  @media (prefers-reduced-motion: reduce) { .tile { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span>SCHÄLSICK DADS // START</span><span>50.94°N 6.96°E</span></div>
+
+  <header>
+    <img src="/logo.png" alt="Schälsick Dads" width="600" height="600">
+    <p class="claim">Kölsch. Kinder. Chaos.</p>
+  </header>
+
+  <h2>Werkzeuge</h2>
+  <nav class="tiles" id="tiles" aria-label="Werkzeuge">
+    <noscript>
+      <a class="tile" href="/walking-dads/"><div class="ic">👟</div><div><b>Walking Dads</b></div></a>
+      <a class="tile" href="/hammer-deals/"><div class="ic">🔨</div><div><b>Hammer-Deals</b></div></a>
+      <a class="tile" href="/geschichte/"><div class="ic">🌙</div><div><b>Gutenachtgeschichte</b></div></a>
+    </noscript>
+  </nav>
+
+  <h2>Termine</h2>
+  <p class="nameinfo" id="nameInfo" hidden></p>
+  <section id="termine" aria-live="polite"><div class="leer">Lade Termine ...</div></section>
+
+
+  <section class="vorschlag" id="vorschlag">
+    <details>
+      <summary>Termin fehlt? Schlag ihn vor</summary>
+      <form id="vsForm" autocomplete="off">
+        <p>Fabian bekommt eine WhatsApp-Nachricht mit deinem Vorschlag und trägt den Termin hier ein.</p>
+        <label for="vsTitel">Was?</label>
+        <input id="vsTitel" required maxlength="80" placeholder="z. B. Stammtisch im Brauhaus">
+        <div class="zwei">
+          <div><label for="vsDatum">Wann?</label><input id="vsDatum" type="date" required></div>
+          <div><label for="vsZeit">Uhrzeit <span class="opt">(optional)</span></label><input id="vsZeit" type="time"></div>
+        </div>
+        <label for="vsOrt">Wo? <span class="opt">(optional)</span></label>
+        <input id="vsOrt" maxlength="80" placeholder="Treffpunkt">
+        <label for="vsName">Dein Name <span class="opt">(optional)</span></label>
+        <input id="vsName" maxlength="30" placeholder="Vorname" autocomplete="given-name">
+        <button class="btn voll" type="submit">An Fabian schicken</button>
+        <div class="danke" id="vsDanke" role="status" aria-live="polite"></div>
+      </form>
+    </details>
+  </section>
+
+  <section class="install" id="install" hidden>
+    <h2>App aufs Handy</h2>
+    <div class="card">
+      <h3>Wie eine App auf dem Startbildschirm</h3>
+      <p>Einmal installieren, dann liegt die Startseite mit eigenem Symbol auf deinem Handy. Kostet nichts, kommt nicht aus dem App-Store.</p>
+      <button type="button" class="btn" id="installBtn" hidden>App jetzt installieren</button>
+      <details id="dAndroid">
+        <summary>Android (Chrome)</summary>
+        <ol>
+          <li>Diese Seite in <b>Chrome</b> öffnen.</li>
+          <li>Oben rechts auf die <b>drei Punkte ⋮</b> tippen.</li>
+          <li><b>„App installieren"</b> oder <b>„Zum Startbildschirm hinzufügen"</b> wählen.</li>
+          <li>Mit <b>Installieren</b> bestätigen.</li>
+        </ol>
+      </details>
+      <details id="dApple">
+        <summary>iPhone und iPad (Safari)</summary>
+        <ol>
+          <li>Diese Seite in <b>Safari</b> öffnen.</li>
+          <li>Unten auf das <b>Teilen-Symbol</b> tippen (Quadrat mit Pfeil nach oben).</li>
+          <li>Nach unten wischen und <b>„Zum Home-Bildschirm"</b> wählen.</li>
+          <li>Oben rechts auf <b>Hinzufügen</b> tippen.</li>
+        </ol>
+        <p class="hinweis">Hinweis: Auf dem iPhone klappt das nur über Safari.</p>
+      </details>
+    </div>
+  </section>
+
+  <dialog id="nameDlg" aria-labelledby="nameTitel">
+    <form id="nameForm">
+      <h3 id="nameTitel">Wie heißt du?</h3>
+      <p>Der Name steht in deiner WhatsApp-Nachricht. Er bleibt nur auf deinem Handy gespeichert.</p>
+      <input id="nameIn" maxlength="30" autocomplete="given-name" placeholder="Vorname" required>
+      <div class="btns">
+        <button class="btn" type="submit" id="nameOk">Weiter</button>
+        <button class="btn alt" type="button" id="nameAb">Abbrechen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <footer>
+    <div class="waves"></div>
+    Von Dads für Dads · us Kölle
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  // nur interne Pfade zulassen (beginnen mit einem einzelnen /)
+  function sichererPfad(p) {
+    return typeof p === 'string' && /^\/(?!\/)/.test(p) ? p : '#';
+  }
+  function sichererLink(u) {
+    return typeof u === 'string' && /^https:\/\//i.test(u) ? u : '';
+  }
+
+  // ---------- Kacheln ----------
+  function zeigeTools(liste) {
+    var box = document.getElementById('tiles');
+    box.textContent = '';
+    liste.forEach(function (t) {
+      var a = el('a', 'tile');
+      a.href = sichererPfad(t.pfad);
+      var ic = el('div', 'ic', t.icon || '🍺');
+      ic.setAttribute('aria-hidden', 'true');
+      var tx = el('div');
+      tx.appendChild(el('b', null, t.name || ''));
+      if (t.text) tx.appendChild(el('span', null, t.text));
+      a.appendChild(ic); a.appendChild(tx);
+      box.appendChild(a);
+    });
+  }
+
+  // ---------- Termine ----------
+  // Format in termine.json: {"titel":"", "start":"2026-11-08T10:00", "ende":"2026-11-08T12:00" (optional),
+  //                          "ort":"", "text":"", "link":"https://..."}
+  // Zeiten sind Kölner Ortszeit, ohne Zeitzone.
+  function parse(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?$/.exec(s || '');
+    if (!m) return null;
+    return { y: +m[1], mo: +m[2], d: +m[3], h: m[4] != null ? +m[4] : null, mi: m[5] != null ? +m[5] : 0 };
+  }
+  function toDate(p, endOfDay) {
+    return new Date(p.y, p.mo - 1, p.d, p.h != null ? p.h : (endOfDay ? 23 : 0), p.h != null ? p.mi : (endOfDay ? 59 : 0));
+  }
+  var TAGE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+  var MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+  function zwei(n) { return (n < 10 ? '0' : '') + n; }
+  function wannText(t) {
+    var d = toDate(t.p, false);
+    var s = TAGE[d.getDay()] + ', ' + t.p.d + '. ' + MONATE[t.p.mo - 1];
+    if (t.p.h != null) s += ' · ' + zwei(t.p.h) + ':' + zwei(t.p.mi) + ' Uhr';
+    return s;
+  }
+
+  function ics(t) {
+    function f(p, plus) {
+      var d = toDate(p, false);
+      if (plus) d = new Date(d.getTime() + plus);
+      var base = d.getFullYear() + zwei(d.getMonth() + 1) + zwei(d.getDate());
+      return p.h != null ? base + 'T' + zwei(d.getHours()) + zwei(d.getMinutes()) + '00' : base;
+    }
+    function esc(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+    var ganztag = t.p.h == null;
+    var ende = t.e || null;
+    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Schaelsick Dads//Termine//DE', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
+      'UID:' + t.id + '@schaelsickdads.github.io',
+      'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '')];
+    if (ganztag) {
+      lines.push('DTSTART;VALUE=DATE:' + f(t.p));
+      lines.push('DTEND;VALUE=DATE:' + f(ende || t.p, 86400000));
+    } else {
+      lines.push('DTSTART:' + f(t.p));
+      lines.push('DTEND:' + (ende && ende.h != null ? f(ende) : f(t.p, 2 * 3600000)));
+    }
+    // Erinnerung: bei Terminen mit Uhrzeit eine Stunde vorher, bei ganztägigen am Vortag um 18 Uhr
+    var alarm = ['BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t.titel), 'TRIGGER:' + (ganztag ? '-PT6H' : '-PT60M'), 'END:VALARM'];
+    lines.push('SUMMARY:' + esc(t.titel));
+    if (t.ort) lines.push('LOCATION:' + esc(t.ort));
+    var beschr = [t.text, hatKarte(t) ? 'Karte: ' + t.karte : ''].filter(Boolean).join('\n');
+    if (beschr) lines.push('DESCRIPTION:' + esc(beschr));
+    lines = lines.concat(alarm);
+    lines.push('END:VEVENT', 'END:VCALENDAR');
+    return lines.join('\r\n');
+  }
+
+  // Countdown: heute / morgen / in 3 Tagen
+  function countdown(t) {
+    var h = new Date(); h.setHours(0, 0, 0, 0);
+    var diff = Math.round((new Date(t.p.y, t.p.mo - 1, t.p.d) - h) / 86400000);
+    if (diff < 0) return t.bis >= new Date() ? 'läuft gerade' : '';
+    if (diff === 0) return 'heute';
+    if (diff === 1) return 'morgen';
+    if (diff === 2) return 'übermorgen';
+    return diff <= 60 ? 'in ' + diff + ' Tagen' : '';
+  }
+  function tagEl(t) {
+    var c = countdown(t);
+    return c ? el('span', 'tag', c) : null;
+  }
+
+  // erlaubt sind nur https-Links zu Google Maps oder Apple Karten
+  function kartenLinkOk(u) {
+    try {
+      var x = new URL(u), h = x.hostname.toLowerCase();
+      if (x.protocol !== 'https:') return false;
+      if (h === 'maps.app.goo.gl' || h === 'maps.apple.com' || h === 'maps.google.com') return true;
+      if (h === 'goo.gl') return x.pathname.indexOf('/maps') === 0;
+      return /^(www\.)?google\.[a-z.]+$/.test(h) && x.pathname.indexOf('/maps') === 0;
+    } catch (e) { return false; }
+  }
+
+  // Ort als Link in die Karten-App (iPhone: Apple Karten, sonst Google Maps)
+  var IOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '') || (/Macintosh/.test(navigator.userAgent || '') && navigator.maxTouchPoints > 1);
+  function hatKarte(t) { return !!(t.karte && kartenLinkOk(t.karte)); }
+  // Mit eingetragenem Karten-Link führt der Ort direkt dorthin, sonst Suche nach dem Wort
+  function ortLink(t) {
+    var a = el('a', null, '📍 ' + (t.ort || 'Karte öffnen'));
+    a.href = hatKarte(t) ? t.karte : ((IOS ? 'https://maps.apple.com/?q=' : 'https://www.google.com/maps/search/?api=1&query=') + encodeURIComponent(t.ort));
+    a.target = '_blank'; a.rel = 'noopener';
+    return a;
+  }
+
+  // Teilen: öffnet WhatsApp mit fertiger Nachricht, dort Gruppe wählen
+  var SEITE = 'https://schaelsickdads.github.io/';
+  function teilenKnopf(t, alt) {
+    var zeilen = ['🍺 ' + t.titel, wannText(t)];
+    if (t.ort) zeilen.push('📍 ' + t.ort);
+    if (hatKarte(t)) zeilen.push('Karte: ' + t.karte);
+    if (t.text) zeilen.push(t.text);
+    var u = sichererLink(t.link);
+    zeilen.push('', (u ? 'Infos: ' + u + '\n' : '') + 'Alle Termine: ' + SEITE);
+    var a = el('a', 'btn' + (alt ? ' alt' : ''), 'In WhatsApp teilen');
+    a.href = 'https://wa.me/?text=' + encodeURIComponent(zeilen.join('\n'));
+    a.target = '_blank'; a.rel = 'noopener';
+    return a;
+  }
+
+  // ---------- Zusagen per WhatsApp ----------
+  var NAME_KEY = 'sd_name';
+  function getName() { try { return (localStorage.getItem(NAME_KEY) || '').trim(); } catch (e) { return ''; } }
+  function setName(n) { try { if (n) localStorage.setItem(NAME_KEY, n); else localStorage.removeItem(NAME_KEY); } catch (e) {} }
+
+  function kurz(t) {
+    var d = toDate(t.p, false);
+    var s = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'][d.getDay()] + ' ' + t.p.d + '.' + t.p.mo + '.';
+    if (t.p.h != null) s += ', ' + zwei(t.p.h) + ':' + zwei(t.p.mi) + ' Uhr';
+    return s;
+  }
+
+  function frageName(fertig) {
+    var dlg = document.getElementById('nameDlg'), inp = document.getElementById('nameIn');
+    if (!dlg || typeof dlg.showModal !== 'function') {          // alte Browser: einfache Abfrage
+      var n = (window.prompt('Wie heißt du? (Vorname)', getName()) || '').trim().slice(0, 30);
+      if (n) { setName(n); renderNameInfo(); fertig(n); }
+      return;
+    }
+    inp.value = getName();
+    dlg._fertig = fertig;
+    dlg.showModal();
+    inp.focus();
+  }
+  (function () {
+    var dlg = document.getElementById('nameDlg');
+    if (!dlg) return;
+    document.getElementById('nameForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var n = document.getElementById('nameIn').value.trim().slice(0, 30);
+      if (!n) return;
+      setName(n); renderNameInfo();
+      var cb = dlg._fertig; dlg._fertig = null;
+      dlg.close();
+      if (cb) cb(n);
+    });
+    document.getElementById('nameAb').addEventListener('click', function () { dlg._fertig = null; dlg.close(); });
+  })();
+
+  function renderNameInfo() {
+    var p = document.getElementById('nameInfo'), n = getName();
+    p.textContent = '';
+    if (!n) { p.hidden = true; return; }
+    p.hidden = false;
+    p.appendChild(document.createTextNode('Dein Name für Zusagen: '));
+    p.appendChild(el('b', null, n));
+    p.appendChild(document.createTextNode('. '));
+    var b = el('button', null, 'Name ändern'); b.type = 'button';
+    b.addEventListener('click', function () { frageName(function () {}); });
+    p.appendChild(b);
+  }
+
+  function sendeZusage(t, ja, name) {
+    var text = (ja ? '✅ ' + name + ' ist dabei: ' : '❌ ' + name + ' kann leider nicht: ') + t.titel + ', ' + kurz(t);
+    var url = 'https://wa.me/?text=' + encodeURIComponent(text);
+    var w = window.open(url, '_blank');
+    if (!w) window.location.href = url;
+  }
+  function zusageKnopf(t, ja) {
+    var b = el('button', 'btn' + (ja ? '' : ' alt'), ja ? '✅ Bin dabei' : '❌ Kann nicht');
+    b.type = 'button';
+    b.addEventListener('click', function () {
+      var n = getName();
+      if (n) sendeZusage(t, ja, n); else frageName(function (nn) { sendeZusage(t, ja, nn); });
+    });
+    return b;
+  }
+  function zusageZeile(t) {
+    var z = el('div', 'zusage');
+    z.appendChild(zusageKnopf(t, true));
+    z.appendChild(zusageKnopf(t, false));
+    return z;
+  }
+  // Stufen für Papas und Kinder: 0-1, 2-3, 4+
+  var STUFEN = ['0-1', '2-3', '4+'];
+  function zusagenEl(t) {
+    var f = document.createDocumentFragment(), n = 0;
+    [['papas', 'Papas'], ['kinder', 'Kinder']].forEach(function (k) {
+      if (t[k[0]]) { f.appendChild(el('span', 'tag zu', k[1] + ' ' + t[k[0]].replace('-', '–'))); n++; }
+    });
+    return n ? f : null;
+  }
+
+  function icsKnopf(t) {
+    var b = el('button', 'btn', 'In den Kalender');
+    b.type = 'button';
+    b.addEventListener('click', function () {
+      var blob = new Blob([ics(t)], { type: 'text/calendar;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'schaelsick-dads-termin.ics';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    });
+    return b;
+  }
+
+  function linkKnopf(t, alt) {
+    var u = sichererLink(t.link);
+    if (!u) return null;
+    var a = el('a', 'btn' + (alt ? ' alt' : ''), 'Mehr Infos');
+    a.href = u; a.rel = 'noopener'; a.target = '_blank';
+    return a;
+  }
+
+  function zeigeTermine(roh) {
+    var box = document.getElementById('termine');
+    box.textContent = '';
+    var jetzt = new Date();
+    var liste = (Array.isArray(roh) ? roh : []).map(function (r, i) {
+      var p = parse(r.start);
+      if (!p) return null;
+      var e = parse(r.ende);
+      var endDatum = toDate(e || p, true);
+      return { papas: STUFEN.indexOf(r.papas) >= 0 ? r.papas : '', kinder: STUFEN.indexOf(r.kinder) >= 0 ? r.kinder : '', id: 'termin-' + i + '-' + (r.start || ''), titel: String(r.titel || 'Termin'), ort: r.ort || '', karte: r.karte || '', text: r.text || '', link: r.link,
+               p: p, e: e, ab: toDate(p, false), bis: endDatum };
+    }).filter(function (t) { return t && t.bis >= jetzt; })
+      .sort(function (a, b) { return a.ab - b.ab; });
+
+    if (!liste.length) {
+      box.appendChild(el('div', 'leer', 'Gerade steht nichts an. Neue Termine siehst du hier und in der WhatsApp-Community.'));
+      return;
+    }
+
+    var n = liste[0];
+    var card = el('div', 'next');
+    card.appendChild(el('div', 'lbl', 'Nächster Termin'));
+    card.appendChild(el('div', 'titel', n.titel));
+    var wh = el('div', 'when', wannText(n));
+    var tg = tagEl(n); if (tg) wh.appendChild(tg);
+    var zp = zusagenEl(n); if (zp) wh.appendChild(zp);
+    card.appendChild(wh);
+    if (n.ort || hatKarte(n)) { var od = el('div', 'ort'); od.appendChild(ortLink(n)); card.appendChild(od); }
+    if (n.text) card.appendChild(el('div', 'note', n.text));
+    card.appendChild(zusageZeile(n));
+    var bt = el('div', 'btns');
+    bt.appendChild(icsKnopf(n));
+    bt.appendChild(teilenKnopf(n, true));
+    var l1 = linkKnopf(n, true); if (l1) bt.appendChild(l1);
+    card.appendChild(bt);
+    box.appendChild(card);
+
+    if (liste.length > 1) {
+      var ul = el('div', 'list');
+      liste.slice(1).forEach(function (t) {
+        var r = el('div', 'row');
+        r.appendChild(el('div', 'titel', t.titel));
+        var mt = el('div', 'meta', wannText(t));
+        var tg2 = tagEl(t); if (tg2) mt.appendChild(tg2);
+        var zp2 = zusagenEl(t); if (zp2) mt.appendChild(zp2);
+        if (t.ort || hatKarte(t)) { mt.appendChild(document.createTextNode(' · ')); mt.appendChild(ortLink(t)); }
+        r.appendChild(mt);
+        if (t.text) r.appendChild(el('div', 'meta', t.text));
+        r.appendChild(zusageZeile(t));
+        var b2 = el('div', 'btns');
+        b2.appendChild(icsKnopf(t));
+        b2.appendChild(teilenKnopf(t, true));
+        var l2 = linkKnopf(t, true); if (l2) b2.appendChild(l2);
+        r.appendChild(b2);
+        ul.appendChild(r);
+      });
+      box.appendChild(ul);
+    }
+  }
+
+  function laden(url) {
+    return fetch(url, { cache: 'no-cache' }).then(function (r) {
+      if (!r.ok) throw new Error(url + ' ' + r.status);
+      return r.json();
+    });
+  }
+
+  renderNameInfo();
+  laden('/tools.json').then(zeigeTools).catch(function () {
+    document.getElementById('tiles').appendChild(el('div', 'leer', 'Die Werkzeuge konnten nicht geladen werden. Bitte kurz neu laden.'));
+  });
+  laden('/termine.json').then(zeigeTermine).catch(function () {
+    var b = document.getElementById('termine'); b.textContent = '';
+    b.appendChild(el('div', 'leer', 'Die Termine konnten nicht geladen werden. Bitte kurz neu laden.'));
+  });
+
+
+  // ---------- Termin vorschlagen (WhatsApp an Fabian) ----------
+  // Optional: WhatsApp-Nummer von Fabian im internationalen Format ohne + und Leerzeichen, z. B. '49151...'.
+  // Leer = die Nachricht wird in WhatsApp an einen frei gewählten Chat (Fabian oder Gruppe) geschickt.
+  var FABIAN_WA = '';
+  (function () {
+    var form = document.getElementById('vsForm');
+    if (!form) return;
+    var datum = document.getElementById('vsDatum');
+    function heute() { var h = new Date(); return h.getFullYear() + '-' + zwei(h.getMonth() + 1) + '-' + zwei(h.getDate()); }
+    datum.min = heute();
+    var nm = document.getElementById('vsName'); nm.value = getName();
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var titel = document.getElementById('vsTitel').value.trim();
+      var p = parse(datum.value), zeit = document.getElementById('vsZeit').value;
+      var ort = document.getElementById('vsOrt').value.trim();
+      var name = nm.value.trim().slice(0, 30);
+      if (!titel || !p) return;
+      if (name) { setName(name); renderNameInfo(); }
+      var d = toDate(p, false);
+      var wann = TAGE[d.getDay()] + ', ' + p.d + '. ' + MONATE[p.mo - 1] + (p.y !== new Date().getFullYear() ? ' ' + p.y : '') + (zeit ? ' · ' + zeit + ' Uhr' : '');
+      var z = ['📅 Terminvorschlag für die Startseite', '', titel, wann];
+      if (ort) z.push('📍 ' + ort);
+      z.push('', 'Fabian, bitte eintragen 🙏' + (name ? ' (Vorschlag von ' + name + ')' : ''));
+      var url = 'https://wa.me/' + FABIAN_WA.replace(/\D/g, '') + '?text=' + encodeURIComponent(z.join('\n'));
+      var w = window.open(url, '_blank');
+      if (!w) window.location.href = url;
+      document.getElementById('vsDanke').textContent = 'WhatsApp ist offen. Bitte dort noch auf Senden tippen.';
+      document.getElementById('vsTitel').value = ''; document.getElementById('vsZeit').value = ''; document.getElementById('vsOrt').value = ''; datum.value = '';
+    });
+  })();
+
+  // ---------- App-Hinweis ----------
+  (function () {
+    var sec = document.getElementById('install');
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    if (standalone) return;                       // schon installiert: nichts anzeigen
+    sec.hidden = false;
+    var ua = navigator.userAgent || '';
+    var ios = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    var android = /Android/.test(ua);
+    if (ios) document.getElementById('dApple').open = true;
+    else if (android) document.getElementById('dAndroid').open = true;
+
+    var angebot = null, btn = document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault(); angebot = e; btn.hidden = false;
+    });
+    btn.addEventListener('click', function () {
+      if (!angebot) return;
+      angebot.prompt();
+      angebot.userChoice.then(function () { angebot = null; btn.hidden = true; });
+    });
+    window.addEventListener('appinstalled', function () { sec.hidden = true; });
+  })();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    });
+  }
+})();
+</script>
+</body>
+</html>
